@@ -1,0 +1,6 @@
+1. get range IP
+  * get allive IP's
+2. add common proxy ports
+3. make list of active proxy
+4. check quality of proxy
+5. multitasking
