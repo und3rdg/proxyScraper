@@ -15,18 +15,13 @@ def ipRange(aStart, aEnd, bStart, bEnd, cStart, cEnd, dStart, dEnd):
                 for d in range(dStart, dEnd + 1):
                     ipOut = str(a)+'.'+str(b)+'.'+str(c)+'.'+str(d) 
                     ip.append(ipOut)
-ipRange(126,127,
-        0,10,
-        0,2,
-        0,2)
 
-# for i in ip:
-#     print('ping', i)
+ipRange(5,5,
+        135,150,
+        0,255,
+        0,255)
 
-# print('how many ip\'s: ', len(ip))
-# print(ip[262144 - 1])
-# print(ip[-1])
-
+print('list Ip Done')
 
 
 
@@ -34,29 +29,34 @@ ipRange(126,127,
 
 print_lock = threading.Lock()
 
-port = 22
+openPort = []
+portRange = [80, 8080]
 
-def portscan(target):
+
+def portscan(target, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        con = s.connect((target, port))
         with print_lock:
-            print(target,':',port,'<-- IS OPEN ! ! !')
-        con.close()
+            con = s.connect((target, port))
+            openPort.append( str(target) + ':' + str(port) )
+            print( '     ' + openPort[-1] + ' <-- is OPEN (*)---------(*)' )
+            con.close()
     except:
-        # print(target, ':', port, 'dead')
-        pass
+        with print_lock:
+            print( 'CLOSE ' + str(target) + ':' + str(port) )
+            pass
 
 def threader():
     while True:
         worker = q.get()
-        portscan(worker)
+        for port in portRange:
+            portscan(worker, port)
         q.task_done()
 
+# how many threads
 q = Queue()
 
-# how many threads
-thNum = 30
+thNum = 1000
 for x in range(thNum):
     t = threading.Thread(target=threader)
     t.daemon = True
@@ -67,7 +67,10 @@ for worker in ip:
 
 q.join()
 
-
+print('===================== IP WITH OPEN PORTS START LIST =====================')
+for oIp in openPort:
+    print('                         ', oIp)
+print('=====================  IP WITH OPEN PORTS END LIST  =====================')
 
 
 # CHECK PROXY QUALITY
