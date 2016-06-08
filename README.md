@@ -27,3 +27,14 @@ This README would normally document whatever steps are necessary to get your app
 
 * Repo owner or admin
 * Other community or team contact
+
+### TODO ###
+
+~~1. get range IP~~
+~~2. get allive IP's~~
+~~* add common proxy ports~~
+~~* multitasking~~
+  4. make list of active proxy
+      * multitasking
+  5. check quality of proxy
+    * multitasking
