@@ -34,38 +34,29 @@ openPort = []
 portRange = [80, 22]
 
 # IP range
-aStart = 5
-aEnd   = 5
+aStart,bStart,cStart,dStart = 127,0,0,0
+aEnd, bEnd, cEnd, dEnd      = 127,0,0,5 
 
-bStart = 0
-bEnd   = 125
-
-cStart = 0
-cEnd   = 255
-
-dStart = 0
-dEnd   = 255
-
-
-def portscan(target, port):
+def portscan(ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         with print_lock:
             s.settimeout(3)
-            con = s.connect((target, port))
-            openPort.append( str(target) + ':' + str(port) )
+            con = s.connect((ip, port))
+            openPort.append( str(ip) + ':' + str(port) )
             print( '     ' + openPort[-1] + ' <-- is OPEN (*)---------(*)' )
             con.close()
     except:
         with print_lock:
-            print( 'CLOSE ' + str(target) + ':' + str(port) )
+            print( 'CLOSE ' + str(ip) + ':' + str(port) )
             pass
 
 def threader():
     while True:
         worker = q.get()
-        for port in portRange:
-            portscan(worker, port)
+        # for port in portRange:
+        #     portscan(worker, port)
+        portscan(worker[0], worker[1])
         q.task_done()
 
 q = Queue()
@@ -86,8 +77,9 @@ for a in range(aStart, aEnd + 1):
             for d in range(dStart, dEnd + 1):
                 ipOut = str(a)+'.'+str(b)+'.'+str(c)+'.'+str(d) 
                 # ip.append(ipOut)
-                worker = ipOut
-                q.put(worker)
+                for portOut in portRange:
+                    worker = [ipOut, portOut]
+                    q.put(worker)
 q.join()
 
 print('===================== IP WITH OPEN PORTS START LIST =====================')
