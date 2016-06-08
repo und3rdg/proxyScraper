@@ -25,6 +25,30 @@ thNum = 150
 aStart,bStart,cStart,dStart = 183,91,33,75
 aEnd, bEnd, cEnd, dEnd      = 183,255,255,255 
 
+def dynDns(proxy_ip):
+# CHECK PROXY 
+# timeout in sec
+    # timeout = 1
+    # socket.setdefaulttimeout(timeout)
+
+# proxy_ip = '183.91.33.75:84'
+    proxy_support = urllib.request.ProxyHandler({"http": proxy_ip})
+    opener = urllib.request.build_opener(proxy_support)
+    urllib.request.install_opener(opener)
+
+    proxy_time_start = time.time()
+
+    response = urllib.request.urlopen('http://checkip.dyndns.org')
+    html = response.read()
+
+    proxy_time = time.time() - proxy_time_start
+
+    dynIp = re.findall(r'<body>Current IP Address: (.*?)</body>',str(html))
+    print(dynIp[0]+':'+port, ", --- %s seconds ---" % proxy_time ) 
+
+    dyndns_list.append(dynIp)
+
+
 def portscan(ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -34,29 +58,11 @@ def portscan(ip, port):
             openPort.append( str(ip) + ':' + str(port) )
             print( '     ' + openPort[-1] + ' <-- is OPEN (*)---------(*)' )
 
-# CHECK PROXY 
-# timeout in sec
-            # timeout = 1
-            # socket.setdefaulttimeout(timeout)
-
-            proxy_ip = openPort[-1]
-            # proxy_ip = '183.91.33.75:84'
-            proxy_support = urllib.request.ProxyHandler({"http": proxy_ip})
-            opener = urllib.request.build_opener(proxy_support)
-            urllib.request.install_opener(opener)
-
-            proxy_time = time.time()
-            response = urllib.request.urlopen('http://checkip.dyndns.org')
-            html = response.read()
-
-            dynIp = re.findall(r'<body>Current IP Address: (.*?)</body>',str(html))
-            print(dynIp[0]+':'+port, "--- %s seconds ---" % (time.time() - proxy_time) ) 
-            # dyndns.append(dynIp)
-            print(dyndns)
+            dyndns(openPort[-1])
             con.close()
     except:
         # with print_lock:
-            # print( 'CLOSE ' + str(ip) + ':' + str(port) )
+        #     print( 'CLOSED ' + str(ip) + ':' + str(port) )
         pass
 
 def threader():
@@ -94,5 +100,5 @@ for oIp in openPort:
 print('=====================  IP WITH OPEN PORTS END LIST  =====================')
 
 
-print( "--- %s seconds ---" % (time.time() - start_time) )
+print( "Total time --- %s seconds ---" % (time.time() - start_time) )
 
