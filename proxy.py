@@ -4,7 +4,8 @@ import socket
 import threading
 from queue import Queue
 import time
-# import urllib.request
+import urllib.request
+import re
 start_time = time.time()
 
 
@@ -13,25 +14,50 @@ start_time = time.time()
 print_lock = threading.Lock()
 
 openPort = []
-# portRange = [3128, 1080, 10200, 8080]
-portRange = [80, 22]
+portRange = [81, 84, 3128, 1080, 10200, 8080]
+# portRange = [80, 22]
 
-aStart,bStart,cStart,dStart = 127,0,0,0
-aEnd, bEnd, cEnd, dEnd      = 127,0,0,5 
+dyndns = []
+
+# how many threads
+thNum = 150
+
+aStart,bStart,cStart,dStart = 183,91,33,75
+aEnd, bEnd, cEnd, dEnd      = 183,255,255,255 
 
 def portscan(ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         with print_lock:
-            s.settimeout(3)
+            s.settimeout(5)
             con = s.connect((ip, port))
             openPort.append( str(ip) + ':' + str(port) )
             print( '     ' + openPort[-1] + ' <-- is OPEN (*)---------(*)' )
+
+# CHECK PROXY 
+# timeout in sec
+            # timeout = 1
+            # socket.setdefaulttimeout(timeout)
+
+            proxy_ip = openPort[-1]
+            # proxy_ip = '183.91.33.75:84'
+            proxy_support = urllib.request.ProxyHandler({"http": proxy_ip})
+            opener = urllib.request.build_opener(proxy_support)
+            urllib.request.install_opener(opener)
+
+            proxy_time = time.time()
+            response = urllib.request.urlopen('http://checkip.dyndns.org')
+            html = response.read()
+
+            dynIp = re.findall(r'<body>Current IP Address: (.*?)</body>',str(html))
+            print(dynIp[0]+':'+port, "--- %s seconds ---" % (time.time() - proxy_time) ) 
+            # dyndns.append(dynIp)
+            print(dyndns)
             con.close()
     except:
-        with print_lock:
-            print( 'CLOSE ' + str(ip) + ':' + str(port) )
-            pass
+        # with print_lock:
+            # print( 'CLOSE ' + str(ip) + ':' + str(port) )
+        pass
 
 def threader():
     while True:
@@ -43,8 +69,6 @@ def threader():
 
 q = Queue()
 
-# how many threads
-thNum = 1000
 for x in range(thNum):
     t = threading.Thread(target=threader)
     t.daemon = True
@@ -70,20 +94,5 @@ for oIp in openPort:
 print('=====================  IP WITH OPEN PORTS END LIST  =====================')
 
 
-# CHECK PROXY QUALITY
-'''
-# timeout in sec
-timeout = 5
-socket.setdefaulttimeout(timeout)
-
-proxy_ip = '164.132.57.130:3128'
-proxy_support = urllib.request.ProxyHandler({"http": proxy_ip})
-opener = urllib.request.build_opener(proxy_support)
-urllib.request.install_opener(opener)
-
-with urllib.request.urlopen('http://checkip.dyndns.org') as response:
-    html = response.read()
-print(html)
-'''
 print( "--- %s seconds ---" % (time.time() - start_time) )
 
