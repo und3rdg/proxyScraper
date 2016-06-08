@@ -1,6 +1,8 @@
 [*]1. get range IP
-[ ]2 get allive IP's
-[ ]3. add common proxy ports
+[*]2. get allive IP's
+    [*]add common proxy ports
+    [*] multitasking
 [ ]4. make list of active proxy
+    [ ] multitasking
 [ ]5. check quality of proxy
-[ ]6. multitasking
+    [ ] multitasking
