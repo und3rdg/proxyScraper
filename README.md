@@ -30,11 +30,11 @@ This README would normally document whatever steps are necessary to get your app
 
 ### TODO ###
 
-~~1. get range IP~~
-~~2. get allive IP's~~
-~~* add common proxy ports~~
-~~* multitasking~~
-  4. make list of active proxy
-      * multitasking
-  5. check quality of proxy
+1. get range IP 
++ get allive IP's
+    * add common proxy ports
+    - multitasking
++. make list of active proxy
+    - multitasking
++. check quality of proxy
     * multitasking
