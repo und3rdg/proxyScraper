@@ -3,8 +3,9 @@
 import socket
 import threading
 from queue import Queue
+import time
 # import urllib.request
-
+start_time = time.time()
 
 # IP ARRAY WITH IP RANGE
 # ip = []
@@ -34,14 +35,14 @@ openPort = []
 portRange = [80, 22]
 
 # IP range
-aStart = 5
-aEnd   = 5
+aStart = 127
+aEnd   = 127
 
 bStart = 0
-bEnd   = 125
+bEnd   = 0
 
 cStart = 0
-cEnd   = 255
+cEnd   = 0
 
 dStart = 0
 dEnd   = 255
@@ -111,4 +112,4 @@ with urllib.request.urlopen('http://checkip.dyndns.org') as response:
     html = response.read()
 print(html)
 '''
-
+print( "--- %s seconds ---" % (time.time() - start_time) ) 
