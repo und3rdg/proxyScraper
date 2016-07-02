@@ -14,20 +14,21 @@ start_time = time.time()
 print_lock = threading.Lock()
 
 openPort = []
-portRange = [81, 84, 3128, 1080, 10200, 8080]
+portRange = [80, 81, 84, 3128, 1080, 10200, 8080]
 # portRange = [80, 22]
 
 dyndns = []
+dyndns_list = []
 
 # how many threads
-thNum = 150
+thNum = 500
 
-aStart,bStart,cStart,dStart = 183,91,33,75
-aEnd, bEnd, cEnd, dEnd      = 183,255,255,255 
+aStart,bStart,cStart,dStart = 126,0,0,0
+aEnd, bEnd, cEnd, dEnd      = 127,250,255,255 
 
-def dynDns(proxy_ip):
 # CHECK PROXY 
 # timeout in sec
+def dynDns(proxy_ip):
     # timeout = 1
     # socket.setdefaulttimeout(timeout)
 
@@ -38,7 +39,7 @@ def dynDns(proxy_ip):
 
     proxy_time_start = time.time()
 
-    response = urllib.request.urlopen('http://checkip.dyndns.org')
+    response = urllib.request.urlopen('http://checkip.dyndns.org', timeout=1)
     html = response.read()
 
     proxy_time = time.time() - proxy_time_start
@@ -46,19 +47,24 @@ def dynDns(proxy_ip):
     dynIp = re.findall(r'<body>Current IP Address: (.*?)</body>',str(html))
     print(dynIp[0]+':'+port, ", --- %s seconds ---" % proxy_time ) 
 
-    dyndns_list.append(dynIp)
+    dyndns_list = dynIp[0]+':'+port+','+proxy_time+'\r'
+    # write in fly to file proxyList.csv
+    f = open(proxyList.csv, 'a')
+    f.write(dyndns_list)
+    f.close()
 
 
 def portscan(ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         with print_lock:
-            s.settimeout(5)
+            # s.settimeout(5)
             con = s.connect((ip, port))
-            openPort.append( str(ip) + ':' + str(port) )
-            print( '     ' + openPort[-1] + ' <-- is OPEN (*)---------(*)' )
+            # openPort.append( str(ip) + ':' + str(port) )
+            # print( '     ' + openPort[-1] + ' <-- is OPEN (*)---------(*)' )
 
             dyndns(openPort[-1])
+            # print(dyndns_list)
             con.close()
     except:
         # with print_lock:
@@ -82,7 +88,6 @@ for x in range(thNum):
 
 # for worker in ip:
 #     q.put(worker)
-
 for a in range(aStart, aEnd + 1):
     for b in range(bStart, bEnd + 1):
         for c in range(cStart, cEnd + 1):
@@ -98,7 +103,7 @@ print('===================== IP WITH OPEN PORTS START LIST =====================
 for oIp in openPort:
     print('                         ', oIp)
 print('=====================  IP WITH OPEN PORTS END LIST  =====================')
-
+print(dyndns_list)
 
 print( "Total time --- %s seconds ---" % (time.time() - start_time) )
 
